@@ -1,6 +1,6 @@
 # smart_traffic_control_app
 
-A Flutter aplication used for managing and analyzing a smart traffic light controlled intersection
+A Flutter app that manages a smart traffic light controlled intersection and collect statistics from this intersection.
 
 ## Getting Started
 
