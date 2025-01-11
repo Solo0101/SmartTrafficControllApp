@@ -8,8 +8,6 @@ import 'package:smart_traffic_control_app/constants/router_constants.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
 import 'package:smart_traffic_control_app/constants/text_constants.dart';
 
-// import 'package:smart_traffic_control_app/services/validate_credentials.dart';
-
 import '../services/auth_service.dart';
 import 'home_page.dart';
 
@@ -29,8 +27,8 @@ class LoginPage extends ConsumerWidget {
         child: Column(
           children: <Widget>[
             Container(
-              height:
-                  MediaQuery.of(context).size.height * topContainerPercentage,
+              height: MediaQuery.of(context).size.height *
+                  (topContainerPercentage + 0.2),
               color: primaryHeaderColor,
               child: const Center(
                 child: SafeArea(
@@ -57,7 +55,7 @@ class LoginPage extends ConsumerWidget {
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height *
-                  (1 - topContainerPercentage),
+                  (0.8 - topContainerPercentage),
               child: MyScrollbar(
                   child: SingleChildScrollView(
                 child: Form(

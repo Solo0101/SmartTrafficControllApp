@@ -10,8 +10,6 @@ import 'package:smart_traffic_control_app/constants/text_constants.dart';
 import 'package:smart_traffic_control_app/pages/home_page.dart';
 
 import '../services/auth_service.dart';
-// import 'package:smart_traffic_control_app/services/api_service.dart';
-// import 'package:smart_traffic_control_app/services/validate_credentials.dart';
 
 class RegisterPage extends ConsumerWidget {
   RegisterPage({super.key});
@@ -50,13 +48,17 @@ class RegisterPage extends ConsumerWidget {
                       children: [
                         Text(appTitle,
                             style: TextStyle(
-                                fontSize: 40.0, color: primaryTextColor)),
+                                fontSize: 45.0,
+                                color: primaryTextColor,
+                                fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 20,
                         ),
                         Text('Welcome!',
                             style: TextStyle(
-                                fontSize: 25.0, color: primaryTextColor))
+                                fontSize: 35.0,
+                                color: primaryTextColor,
+                                fontWeight: FontWeight.bold))
                       ],
                     ),
                   ),

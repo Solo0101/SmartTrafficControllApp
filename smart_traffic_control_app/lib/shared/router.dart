@@ -5,9 +5,6 @@ import 'package:smart_traffic_control_app/pages/login_page.dart';
 import 'package:smart_traffic_control_app/pages/register_page.dart';
 // import 'package:smart_traffic_control_app/pages/user_profile_page.dart';
 
-// import '../constants/router_constants.dart';
-// import '../pages/settings_page.dart';
-
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {

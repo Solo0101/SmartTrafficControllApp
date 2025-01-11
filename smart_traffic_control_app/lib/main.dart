@@ -7,7 +7,6 @@ import 'package:smart_traffic_control_app/services/auth_service.dart';
 import 'package:smart_traffic_control_app/services/hive_service.dart';
 import 'package:smart_traffic_control_app/shared/router.dart';
 
-import 'constants/style_constants.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -38,8 +37,7 @@ class SmartTrafficApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       onGenerateRoute: RouteGenerator.generateRoute,
-      theme:
-          ThemeData(primarySwatch: Colors.deepOrange, fontFamily: fontFamily),
+      theme: ThemeData.dark(),
       // darkTheme: ThemeData.dark(),
       home: AuthService.initialRouting(ref),
       // home: LoginPage(),
