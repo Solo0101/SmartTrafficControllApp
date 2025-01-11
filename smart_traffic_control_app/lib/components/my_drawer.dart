@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smart_traffic_control_app/constants/router_constants.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
+
+import '../services/hive_service.dart';
 // import 'package:smart_traffic_control_app/services/hive_service.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -72,7 +74,7 @@ class MyDrawer extends StatelessWidget {
               ],
             ),
             onTap: () {
-              //HiveService().logoutUser();
+              HiveService().logoutUser();
               Navigator.of(context).pushReplacementNamed(loginPageRoute);
             },
             titleTextStyle: const TextStyle(color: primaryTextColor),

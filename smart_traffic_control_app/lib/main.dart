@@ -2,9 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smart_traffic_control_app/pages/login_page.dart';
-// import 'package:services/auth_service.dart';
-// import 'package:services/hive_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smart_traffic_control_app/services/auth_service.dart';
+import 'package:smart_traffic_control_app/services/hive_service.dart';
 import 'package:smart_traffic_control_app/shared/router.dart';
 
 import 'constants/style_constants.dart';
@@ -20,8 +20,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // await Hive.initFlutter();
-  // await HiveService().initHive();
+  await Hive.initFlutter();
+  await HiveService().initHive();
 
   runApp(const ProviderScope(child: SmartTrafficApp()));
 }
@@ -41,8 +41,8 @@ class SmartTrafficApp extends ConsumerWidget {
       theme:
           ThemeData(primarySwatch: Colors.deepOrange, fontFamily: fontFamily),
       // darkTheme: ThemeData.dark(),
-      // home: AuthService.initialRouting(ref),
-      home: LoginPage(),
+      home: AuthService.initialRouting(ref),
+      // home: LoginPage(),
     );
   }
 }

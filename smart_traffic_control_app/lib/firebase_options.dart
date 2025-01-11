@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '71157329991',
     projectId: 'smarttrafficcontrolledapp',
     storageBucket: 'smarttrafficcontrolledapp.firebasestorage.app',
-    iosBundleId: 'com.example.smartTrafficControllApp',
+    iosBundleId: 'com.smartTrafficControl.app',
   );
 }
