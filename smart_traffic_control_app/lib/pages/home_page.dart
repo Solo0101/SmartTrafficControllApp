@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_traffic_control_app/components/my_appbar.dart';
+import 'package:smart_traffic_control_app/components/my_button.dart';
+import 'package:smart_traffic_control_app/components/my_card.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
 
 import '../components/my_drawer.dart';
@@ -17,33 +19,14 @@ class HomePage extends StatelessWidget {
       ),
       endDrawer: const MyDrawer(),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         color: backgroundColor,
         child: Column(
           children: <Widget>[
-            // Container(
-            //   height: MediaQuery.of(context).size.height *
-            //       topContainerPercentage /
-            //       2,
-            //   color: primaryHeaderColor,
-            //   child: const Center(
-            //     child: SafeArea(
-            //       child: Row(
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         children: [
-            //           Text('Main dashboard',
-            //               style: TextStyle(
-            //                   fontSize: 25.0,
-            //                   color: primaryTextColor,
-            //                   fontWeight: FontWeight.bold)),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
             SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  (1 - topContainerPercentage),
+              height:
+                  MediaQuery.of(context).size.height * topContainerPercentage,
               child: const MyScrollbar(
                 child: SingleChildScrollView(
                   child: Column(
@@ -66,6 +49,23 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
+            const MyCard(
+                id: '1',
+                name: 'Intersection 1',
+                address: 'Street 1, Number 1, Address 1'),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 25.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: MyButton(
+                      buttonColor: Colors.green,
+                      textColor: primaryTextColor,
+                      buttonText: "Add Intersection",
+                      onPressed: () {}),
+                ),
+              ),
+            )
           ],
         ),
       ),

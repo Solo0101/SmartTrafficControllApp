@@ -13,4 +13,4 @@ const Color placeholderTextColor = Color(0xFF93adc8);
 
 const String fontFamily = 'DancingScript';
 
-const double topContainerPercentage = 0.3;
+const double topContainerPercentage = 0.1;

@@ -1,5 +1,5 @@
 import 'dart:async';
-
+flutter pub add cloud_firestore
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +197,6 @@ class AuthService {
         if (kDebugMode) {
           print("Password can't be changed$error");
         }
-        //This might happen, when the wrong password is in, the user isn't found, or if the user hasn't logged in recently.
       });
       snackText = 'Password changed successfully!';
       if (kDebugMode) {
