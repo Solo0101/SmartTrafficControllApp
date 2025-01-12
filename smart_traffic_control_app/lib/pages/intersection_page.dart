@@ -9,6 +9,7 @@ import 'package:smart_traffic_control_app/components/my_button.dart';
 import 'package:smart_traffic_control_app/services/database_service.dart';
 
 import '../components/my_appbar.dart';
+import '../components/my_chart.dart';
 import '../components/my_drawer.dart';
 import '../constants/style_constants.dart';
 import '../models/intersection.dart';
@@ -130,6 +131,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                       ),
                     ]),
               ),
+              const SizedBox(height: 40),
+              SizedBox(height: 250, width: MediaQuery.of(context).size.width, child: const MyChart())
             ]),
           ),
         ),

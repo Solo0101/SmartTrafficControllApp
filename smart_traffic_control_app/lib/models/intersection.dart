@@ -68,6 +68,7 @@ class Intersection {
         'city': city,
         'entriesNumber': entriesNumber,
         'individualToggle': individualToggle,
-        'entriesCoordinates': entriesCoordinates
+        'entriesCoordinates': entriesCoordinates,
+        'entriesTrafficScore': entriesTrafficScore
       };
 }
