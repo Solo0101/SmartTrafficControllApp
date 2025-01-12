@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 
 import '../constants/style_constants.dart';
+import '../models/intersection.dart';
 import '../pages/intersection_page.dart';
+import '../services/database_service.dart';
 
 class MyCard extends StatelessWidget {
   final String id;
@@ -27,13 +30,16 @@ class MyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => IntersectionPage(intersectionId: id),
-            ),
-          );
+        onTap: () async {
+          final intersection = await fetchIntersectionById(context, id);
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => IntersectionPage(intersection: intersection),
+              ),
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -44,24 +50,19 @@ class MyCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 ListTile(
-                  leading: const Icon(Icons.traffic_rounded,
-                      color: primaryTextColor),
+                  leading: const Icon(Icons.traffic_rounded, color: primaryTextColor),
                   // const Icon(Icons.traffic_outlined, color: primaryTextColor),
-                  title: Text(name,
-                      style: const TextStyle(color: primaryTextColor)),
-                  subtitle: Text(address,
-                      style: const TextStyle(color: placeholderTextColor)),
+                  title: Text(name, style: const TextStyle(color: primaryTextColor)),
+                  subtitle: Text(address, style: const TextStyle(color: placeholderTextColor)),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     IconButton(
                       onPressed: () {
-                        MapsLauncher.launchCoordinates(
-                            coordinates.latitude, coordinates.longitude);
+                        MapsLauncher.launchCoordinates(coordinates.latitude, coordinates.longitude);
                       },
-                      icon: const Icon(Icons.pin_drop_rounded,
-                          color: primaryTextColor),
+                      icon: const Icon(Icons.pin_drop_rounded, color: primaryTextColor),
                     ),
                     const SizedBox(width: 8),
                   ],
@@ -72,5 +73,33 @@ class MyCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<Intersection> fetchIntersectionById(BuildContext context, String id) async {
+    try {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return const Center(
+            child: CircularProgressIndicator(color: utilityButtonColor),
+          );
+        },
+      );
+      final response = await DatabaseService.fetchIntersectionById(id);
+      if (context.mounted) Navigator.of(context).pop();
+      if (response != null) {
+        if (kDebugMode) {
+          print(response.toString());
+        }
+        response.entriesCoordinates ??= {};
+        return response;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to fetch data: $e");
+      }
+    }
+    return Intersection(id: '', name: '', address: '', coordinates: const GeoPoint(0, 0), country: '', city: '', entriesNumber: 0, individualToggle: false, entriesCoordinates: {});
   }
 }

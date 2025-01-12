@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:smart_traffic_control_app/models/intersection.dart';
 
-CollectionReference intersections =
-    FirebaseFirestore.instance.collection('intersections');
+CollectionReference intersections = FirebaseFirestore.instance.collection('intersections');
 
 class DatabaseService {
   static Future<void> fetchIntersections() async {
@@ -23,29 +22,33 @@ class DatabaseService {
     }
   }
 
-  static Future<Intersection> fetchIntersectionById(String id) async {
+  static Future<Intersection?> fetchIntersectionById(String id) async {
     try {
       final response = await intersections.doc(id).get();
       if (response.exists) {
+        var responseJson = response.data() as Map<String, dynamic>;
+        responseJson['id'] = id;
         if (kDebugMode) {
-          print(response.data());
+          print(responseJson);
         }
-        return Intersection.fromJson(response.data() as Map<String, dynamic>);
+        final Intersection intersection = Intersection.fromJson(responseJson);
+        return intersection;
       }
     } catch (e) {
       if (kDebugMode) {
         print("Failed to fetch data: $e");
       }
     }
-    return Intersection(
-      id: '',
-      name: '',
-      address: '',
-      coordinates: const GeoPoint(0, 0),
-      country: '',
-      city: '',
-      entriesNumber: 0,
-      individualToggle: false,
-    );
+    return null;
+  }
+
+  static Future<void> editIntersectionById(String id, Intersection newIntersection) async {
+    try {
+      final response = await intersections.doc(id).set(newIntersection.toJson());
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to edit data: $e");
+      }
+    }
   }
 }
