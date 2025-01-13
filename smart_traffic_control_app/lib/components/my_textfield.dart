@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
 
 class MyTextField extends ConsumerStatefulWidget {
-  final TextEditingController controller;
+  late TextEditingController controller;
   final String hintText;
   late bool obscureText;
   final bool isPassword;
@@ -23,6 +23,13 @@ class MyTextField extends ConsumerStatefulWidget {
 }
 
 class _MyTextFieldState extends ConsumerState<MyTextField> {
+  TextEditingController textController = TextEditingController();
+  @override
+  void initState() {
+    textController = widget.controller;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,6 +49,7 @@ class _MyTextFieldState extends ConsumerState<MyTextField> {
         ),
         child: TextFormField(
           controller: widget.controller,
+          // controller: TextEditingController(text: widget.controllerText),
           obscureText: widget.obscureText,
           textInputAction: TextInputAction.next,
           validator: (value) {
@@ -66,15 +74,10 @@ class _MyTextFieldState extends ConsumerState<MyTextField> {
               fillColor: primaryOverlayBackgroundColor,
               filled: true,
               hintText: widget.hintText,
-              hintStyle:
-                  const TextStyle(color: placeholderTextColor, fontSize: 15.0),
+              hintStyle: const TextStyle(color: placeholderTextColor, fontSize: 15.0),
               suffixIcon: widget.isPassword
                   ? IconButton(
-                      icon: Icon(
-                          widget.obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: primaryTextColor),
+                      icon: Icon(widget.obscureText ? Icons.visibility : Icons.visibility_off, color: primaryTextColor),
                       onPressed: () {
                         setState(() {
                           widget.obscureText = !widget.obscureText;

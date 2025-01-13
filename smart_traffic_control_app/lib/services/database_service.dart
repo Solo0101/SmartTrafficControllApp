@@ -51,4 +51,14 @@ class DatabaseService {
       }
     }
   }
+
+  static Future<void> deleteIntersectionById(String id) async {
+    try {
+      final response = await intersections.doc(id).delete();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to delete data: $e");
+      }
+    }
+  }
 }

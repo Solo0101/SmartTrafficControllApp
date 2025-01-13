@@ -7,8 +7,32 @@ import 'package:smart_traffic_control_app/constants/style_constants.dart';
 
 import '../components/my_drawer.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    // setState(() {
+    //   showDialog(
+    //     barrierDismissible: false,
+    //     context: context,
+    //     builder: (context) {
+    //       return const Center(
+    //         child: CircularProgressIndicator(color: utilityButtonColor),
+    //       );
+    //     },
+    //   );
+    //   if (context.mounted) Navigator.of(context).pop();
+    //   await DatabaseService.fetchIntersections();
+    // });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,35 +46,29 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: <Widget>[
             SizedBox(
-              height:
-                  MediaQuery.of(context).size.height * topContainerPercentage,
-              child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(35.0, 30.0, 0.0, 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Select an intersection:',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                color: primaryTextColor,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ]),
+              height: MediaQuery.of(context).size.height * topContainerPercentage,
+              child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(35.0, 30.0, 0.0, 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Select an intersection:',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            color: primaryTextColor,
+                          )),
+                    ],
+                  ),
+                ),
+              ]),
             ),
             StreamBuilder<QuerySnapshot>(
                 // <2> Pass `Stream<QuerySnapshot>` to stream
-                stream: FirebaseFirestore.instance
-                    .collection('intersections')
-                    .snapshots(),
+                stream: FirebaseFirestore.instance.collection('intersections').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    final List<DocumentSnapshot> documents =
-                        snapshot.data!.docs;
+                    final List<DocumentSnapshot> documents = snapshot.data!.docs;
                     return ListView(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
@@ -64,22 +82,17 @@ class HomePage extends StatelessWidget {
                                   city: doc['city'],
                                 ))
                             .toList());
-                  } else if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(
-                        child: CircularProgressIndicator(
-                            color: utilityButtonColor));
+                  } else if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(color: utilityButtonColor));
                   } else if (!snapshot.hasData) {
                     return const Center(
-                      child: Text('No intersections added at the moment!',
-                          style: TextStyle(color: primaryTextColor)),
+                      child: Text('No intersections added at the moment!', style: TextStyle(color: primaryTextColor)),
                     );
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
                   return const Center(
-                    child: Text('No intersections added at the moment!',
-                        style: TextStyle(color: primaryTextColor)),
+                    child: Text('No intersections added at the moment!', style: TextStyle(color: primaryTextColor)),
                   );
                 }),
             Expanded(
@@ -87,11 +100,7 @@ class HomePage extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 25.0),
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: MyButton(
-                      buttonColor: addGreenButtonColor,
-                      textColor: primaryTextColor,
-                      buttonText: "Add Intersection",
-                      onPressed: () {}),
+                  child: MyButton(buttonColor: addGreenButtonColor, textColor: primaryTextColor, buttonText: "Add Intersection", onPressed: () {}),
                 ),
               ),
             )

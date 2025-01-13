@@ -27,35 +27,25 @@ class LoginPage extends ConsumerWidget {
         child: Column(
           children: <Widget>[
             Container(
-              height: MediaQuery.of(context).size.height *
-                  (topContainerPercentage + 0.2),
+              height: MediaQuery.of(context).size.height * (topContainerPercentage + 0.2),
               color: primaryHeaderColor,
               child: const Center(
                 child: SafeArea(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(appTitle,
-                          style: TextStyle(
-                              fontSize: 45.0,
-                              color: primaryTextColor,
-                              fontWeight: FontWeight.bold)),
+                      Text(appTitle, style: TextStyle(fontSize: 45.0, color: primaryTextColor, fontWeight: FontWeight.bold)),
                       SizedBox(
                         height: 20,
                       ),
-                      Text('Welcome!',
-                          style: TextStyle(
-                              fontSize: 35.0,
-                              color: primaryTextColor,
-                              fontWeight: FontWeight.bold))
+                      Text('Welcome!', style: TextStyle(fontSize: 35.0, color: primaryTextColor, fontWeight: FontWeight.bold))
                     ],
                   ),
                 ),
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  (0.8 - topContainerPercentage),
+              height: MediaQuery.of(context).size.height * (0.8 - topContainerPercentage),
               child: MyScrollbar(
                   child: SingleChildScrollView(
                 child: Form(
@@ -76,20 +66,10 @@ class LoginPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      MyTextField(
-                          controller: emailController,
-                          hintText: 'E-mail',
-                          obscureText: false,
-                          hasValidation: true),
-                      MyTextField(
-                          controller: passwordController,
-                          hintText: 'Password',
-                          obscureText: true,
-                          isPassword: true,
-                          hasValidation: true),
+                      MyTextField(controller: emailController, hintText: 'E-mail', obscureText: false, hasValidation: true),
+                      MyTextField(controller: passwordController, hintText: 'Password', obscureText: true, isPassword: true, hasValidation: true),
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(40.0, 15.0, 35.0, 20.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 15.0, 35.0, 20.0),
                         child: Column(children: [
                           const Row(
                             children: [
@@ -114,14 +94,10 @@ class LoginPage extends ConsumerWidget {
                               RichText(
                                 text: TextSpan(
                                   text: 'here',
-                                  style: const TextStyle(
-                                      fontFamily: fontFamily,
-                                      color: Colors.blue,
-                                      fontSize: 15.0),
+                                  style: const TextStyle(fontFamily: fontFamily, color: Colors.blue, fontSize: 15.0),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      Navigator.of(context)
-                                          .pushNamed(registerPageRoute);
+                                      Navigator.of(context).pushNamed(registerPageRoute);
                                     },
                                 ),
                               ),
@@ -143,32 +119,24 @@ class LoginPage extends ConsumerWidget {
                           buttonText: 'Log in',
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              var loginResponse = await AuthService.login(
-                                  emailController.text,
-                                  passwordController.text,
-                                  ref);
+                              var loginResponse = await AuthService.login(emailController.text, passwordController.text, ref);
                               if (context.mounted) {
                                 if (loginResponse == AuthResponse.success) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                     content: Text('Logged in successfully!'),
                                     duration: Duration(seconds: 2),
                                   ));
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const HomePage()),
+                                    MaterialPageRoute(builder: (context) => const HomePage()),
                                   );
-                                } else if (loginResponse ==
-                                    AuthResponse.invalidCredentials) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
+                                } else if (loginResponse == AuthResponse.invalidCredentials) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                     content: Text('Invalid credentials!'),
                                     duration: Duration(seconds: 2),
                                   ));
                                 } else {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                     content: Text('An error occurred'),
                                     duration: Duration(seconds: 2),
                                   ));

@@ -23,8 +23,7 @@ class RegisterPage extends ConsumerWidget {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  final double topContainerPercentage =
-      0.3; //bottom percentage will be the rest of the page
+  final double topContainerPercentage = 0.3; //bottom percentage will be the rest of the page
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -38,35 +37,25 @@ class RegisterPage extends ConsumerWidget {
           child: Column(
             children: <Widget>[
               Container(
-                height:
-                    MediaQuery.of(context).size.height * topContainerPercentage,
+                height: MediaQuery.of(context).size.height * topContainerPercentage,
                 color: primaryHeaderColor,
                 child: const Center(
                   child: SafeArea(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(appTitle,
-                            style: TextStyle(
-                                fontSize: 45.0,
-                                color: primaryTextColor,
-                                fontWeight: FontWeight.bold)),
+                        Text(appTitle, style: TextStyle(fontSize: 45.0, color: primaryTextColor, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 20,
                         ),
-                        Text('Welcome!',
-                            style: TextStyle(
-                                fontSize: 35.0,
-                                color: primaryTextColor,
-                                fontWeight: FontWeight.bold))
+                        Text('Welcome!', style: TextStyle(fontSize: 35.0, color: primaryTextColor, fontWeight: FontWeight.bold))
                       ],
                     ),
                   ),
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height *
-                    (1 - topContainerPercentage),
+                height: MediaQuery.of(context).size.height * (1 - topContainerPercentage),
                 child: MyScrollbar(
                   child: SingleChildScrollView(
                     child: Column(
@@ -131,8 +120,7 @@ class RegisterPage extends ConsumerWidget {
                           hasValidation: true,
                         ),
                         Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(40.0, 15.0, 35.0, 20.0),
+                          padding: const EdgeInsets.fromLTRB(40.0, 15.0, 35.0, 20.0),
                           child: Column(
                             children: [
                               const Row(
@@ -160,14 +148,10 @@ class RegisterPage extends ConsumerWidget {
                                   RichText(
                                     text: TextSpan(
                                       text: 'here',
-                                      style: const TextStyle(
-                                          fontFamily: fontFamily,
-                                          color: Colors.blue,
-                                          fontSize: 15.0),
+                                      style: const TextStyle(fontFamily: fontFamily, color: Colors.blue, fontSize: 15.0),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          Navigator.pushNamed(
-                                              context, loginPageRoute);
+                                          Navigator.pushNamed(context, loginPageRoute);
                                         },
                                     ),
                                   ),
@@ -186,62 +170,45 @@ class RegisterPage extends ConsumerWidget {
                                   buttonText: 'Sign Up',
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      var registerResponse =
-                                          await AuthService.register(
-                                              emailController.text,
-                                              // name: fullNameController.text,
-                                              // phoneNumber:
-                                              //     phoneNumberController.text,
-                                              // country: countryController.text,
-                                              // countyOrState:
-                                              //     countyOrStateController.text,
-                                              // city: cityController.text,
-                                              passwordController.text,
-                                              confirmPasswordController.text,
-                                              ref);
+                                      var registerResponse = await AuthService.register(
+                                          emailController.text,
+                                          // name: fullNameController.text,
+                                          // phoneNumber:
+                                          //     phoneNumberController.text,
+                                          // country: countryController.text,
+                                          // countyOrState:
+                                          //     countyOrStateController.text,
+                                          // city: cityController.text,
+                                          passwordController.text,
+                                          confirmPasswordController.text,
+                                          ref);
                                       if (context.mounted) {
-                                        if (registerResponse ==
-                                            AuthResponse.success) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content: Text(
-                                                'Registered successfully!'),
+                                        if (registerResponse == AuthResponse.success) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                            content: Text('Registered successfully!'),
                                             duration: Duration(seconds: 2),
                                           ));
-                                          var loginResponse =
-                                              await AuthService.login(
-                                                  emailController.text,
-                                                  passwordController.text,
-                                                  ref);
+                                          var loginResponse = await AuthService.login(emailController.text, passwordController.text, ref);
                                           if (context.mounted) {
-                                            if (loginResponse ==
-                                                AuthResponse.success) {
+                                            if (loginResponse == AuthResponse.success) {
                                               Navigator.pushReplacement(
                                                 context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const HomePage()),
+                                                MaterialPageRoute(builder: (context) => const HomePage()),
                                               );
                                             } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'Something went wrong!'),
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                content: Text('Something went wrong!'),
                                                 duration: Duration(seconds: 2),
                                               ));
                                             }
                                           }
-                                        } else if (registerResponse ==
-                                            AuthResponse.badRequest) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content:
-                                                Text('Complete all fields!'),
+                                        } else if (registerResponse == AuthResponse.badRequest) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                            content: Text('Complete all fields!'),
                                             duration: Duration(seconds: 2),
                                           ));
                                         } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                             content: Text('Bad request!'),
                                             duration: Duration(seconds: 2),
                                           ));
