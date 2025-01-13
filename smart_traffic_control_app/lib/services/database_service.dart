@@ -61,4 +61,27 @@ class DatabaseService {
       }
     }
   }
+
+  static Future<void> addIntersection(Intersection newIntersection) async {
+    try {
+      final response = await intersections.add(newIntersection.toJson());
+      Intersection responseIntersection = Intersection(
+        id: response.id,
+        name: newIntersection.name,
+        address: newIntersection.address,
+        coordinates: newIntersection.coordinates,
+        country: newIntersection.country,
+        city: newIntersection.city,
+        entriesNumber: newIntersection.entriesNumber,
+        individualToggle: newIntersection.individualToggle,
+        entriesCoordinates: newIntersection.entriesCoordinates,
+        entriesTrafficScore: newIntersection.entriesTrafficScore,
+      );
+      newIntersection = responseIntersection;
+    } catch (e) {
+      if (kDebugMode) {
+        print("Failed to add data: $e");
+      }
+    }
+  }
 }
