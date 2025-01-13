@@ -256,15 +256,33 @@ class _IntersectionPageState extends State<IntersectionPage> {
               Form(
                   child: Column(children: <Widget>[
                 MyTextField(
-                  hintText: "Intersection name",
                   controller: intersectionNameController,
+                  hintText: "Intersection name",
                 ),
-                MyTextField(controller: intersectionAddressController = TextEditingController(text: widget.intersection.address), hintText: "Address"),
-                MyTextField(controller: intersectionCountryController = TextEditingController(text: widget.intersection.country), hintText: "Country"),
-                MyTextField(controller: intersectionCityController = TextEditingController(text: widget.intersection.city), hintText: "City"),
-                MyTextField(controller: intersectionCoordinatesLatController = TextEditingController(text: widget.intersection.coordinates.latitude.toString()), hintText: "Latitude"),
-                MyTextField(controller: intersectionCoordinatesLongController = TextEditingController(text: widget.intersection.coordinates.longitude.toString()), hintText: "Longitude"),
-                MyTextField(controller: intersectionEntriesNumberController = TextEditingController(text: widget.intersection.entriesNumber.toString()), hintText: "Entries number"),
+                MyTextField(
+                  controller: intersectionAddressController = TextEditingController(text: widget.intersection.address),
+                  hintText: "Address",
+                ),
+                MyTextField(
+                  controller: intersectionCountryController = TextEditingController(text: widget.intersection.country),
+                  hintText: "Country",
+                ),
+                MyTextField(
+                  controller: intersectionCityController = TextEditingController(text: widget.intersection.city),
+                  hintText: "City",
+                ),
+                MyTextField(
+                  controller: intersectionCoordinatesLatController = TextEditingController(text: widget.intersection.coordinates.latitude.toString()),
+                  hintText: "Latitude",
+                ),
+                MyTextField(
+                  controller: intersectionCoordinatesLongController = TextEditingController(text: widget.intersection.coordinates.longitude.toString()),
+                  hintText: "Longitude",
+                ),
+                MyTextField(
+                  controller: intersectionEntriesNumberController = TextEditingController(text: widget.intersection.entriesNumber.toString()),
+                  hintText: "Entries number",
+                ),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
                   const Text("Individual entries traffic light toggle",
                       style: TextStyle(

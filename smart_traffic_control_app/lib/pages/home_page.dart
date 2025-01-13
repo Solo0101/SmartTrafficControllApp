@@ -6,6 +6,7 @@ import 'package:smart_traffic_control_app/components/my_card.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
 
 import '../components/my_drawer.dart';
+import '../constants/router_constants.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -100,7 +101,13 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(bottom: 25.0),
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: MyButton(buttonColor: addGreenButtonColor, textColor: primaryTextColor, buttonText: "Add Intersection", onPressed: () {}),
+                  child: MyButton(
+                      buttonColor: addGreenButtonColor,
+                      textColor: primaryTextColor,
+                      buttonText: "Add Intersection",
+                      onPressed: () {
+                        Navigator.pushNamed(context, addIntersectionPageRoute);
+                      }),
                 ),
               ),
             )
