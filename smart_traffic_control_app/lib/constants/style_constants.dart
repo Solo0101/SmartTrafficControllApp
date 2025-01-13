@@ -10,6 +10,7 @@ const Color addGreenButtonColor = Color(0xFF86AB79);
 const Color popUpBackgroundColor = Color(0xFF212536);
 const Color buttonTextColor = Color(0xFFFFFFFF);
 const Color placeholderTextColor = Color(0xFF93adc8);
+const Color importantButtonColor = Color(0xFFad3d3d);
 
 const String fontFamily = 'DancingScript';
 
