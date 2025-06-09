@@ -1,17 +1,49 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geojson_vi/geojson_vi.dart';
+
+class IntersectionEntry {
+  final String id;
+  final int entryNumber;
+  GeoJSONPoint? coordinates1 = GeoJSONPoint([0.0, 0.0]);
+  GeoJSONPoint? coordinates2 = GeoJSONPoint([0.0, 0.0]);
+  int? trafficScore = 0;
+
+  IntersectionEntry(
+      {required this.id,
+        required this.entryNumber,
+        this.coordinates1,
+        this.coordinates2,
+        this.trafficScore});
+
+  factory IntersectionEntry.fromJson(Map<String, dynamic> json) {
+    IntersectionEntry intersectionEntry = IntersectionEntry(
+        id: json['id'],
+        entryNumber: json['entryNumber'],
+        coordinates1: json['coordinates1'] == null ? GeoJSONPoint([0.0, 0.0]) : GeoJSONPoint.fromJSON(json['coordinates1']),
+        coordinates2: json['coordinates2'] == null ? GeoJSONPoint([0.0, 0.0]) : GeoJSONPoint.fromJSON(json['coordinates2']),
+        trafficScore: json['trafficScore']);
+    return intersectionEntry;
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'entryNumber': entryNumber,
+        'coordinates1': coordinates1?.toJSON(),
+        'coordinates2': coordinates2?.toJSON(),
+        'trafficScore': trafficScore
+      };
+}
 
 class Intersection {
   final String id;
   final String name;
   final String address;
-  final GeoPoint coordinates;
+  final GeoJSONPoint coordinates;
   final String country;
   final String city;
   final int entriesNumber;
   final bool individualToggle;
-  // Map<String, dynamic>? entriesCoordinates = {};
-  Map<String, List<GeoPoint>>? entriesCoordinates = {};
-  Map<String, int>? entriesTrafficScore = {};
+  final bool smartAlgorithmEnabled;
+  List<IntersectionEntry>? entries;
 
   Intersection(
       {required this.id,
@@ -22,53 +54,41 @@ class Intersection {
       required this.city,
       required this.entriesNumber,
       required this.individualToggle,
-      this.entriesCoordinates,
-      this.entriesTrafficScore});
+      required this.smartAlgorithmEnabled,
+      this.entries});
 
   factory Intersection.fromJson(Map<String, dynamic> json) {
-    Map<String, dynamic> tempEntriesCoordinatesMap = json['entriesCoordinates'] == null ? {} : json['entriesCoordinates'] as Map<String, dynamic>;
-    Map<String, List<GeoPoint>> generatedEntriesCoordinatesMap = {};
-    int i = 0;
-    for (var v in tempEntriesCoordinatesMap.values) {
-      List<GeoPoint> tempPointList = [];
-      tempPointList.add(GeoPoint(v[0].latitude, v[0].longitude));
-      tempPointList.add(GeoPoint(v[1].latitude, v[1].longitude));
-      generatedEntriesCoordinatesMap.update("entrieNumber$i", (value) => tempPointList, ifAbsent: () => tempPointList);
-      i++;
+
+    List<IntersectionEntry> entriesList = [];
+    if (json['entries'] != null && json['entries'] is List) {
+      for (var entry in json['entries']) {
+        entriesList.add(IntersectionEntry.fromJson(entry));
+      }
     }
 
-    Map<String, dynamic> tempEntriesTrafficScoreMap = json['entriesTrafficScore'] == null ? {} : json['entriesTrafficScore'] as Map<String, dynamic>;
-    Map<String, int> generatedEntriesTrafficScoreMap = {};
-    i = 0;
-    for (var v in tempEntriesTrafficScoreMap.values) {
-      generatedEntriesTrafficScoreMap.update("entrieNumber$i", (value) => value, ifAbsent: () => v);
-      i++;
-    }
-
-    //
     return Intersection(
         id: json['id'],
         name: json['name'],
         address: json['address'],
-        coordinates: json['coordXY'],
+        coordinates: GeoJSONPoint.fromJSON(json['coordXY']),
         country: json['country'],
         city: json['city'],
         entriesNumber: json['entriesNumber'],
         individualToggle: json['individualToggle'],
-        entriesCoordinates: generatedEntriesCoordinatesMap,
-        entriesTrafficScore: generatedEntriesTrafficScoreMap);
+        smartAlgorithmEnabled: json['smartAlgorithmEnabled'],
+        entries: entriesList);
   }
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'address': address,
-        'coordXY': coordinates,
+        'coordXY': coordinates.toJSON(),
         'country': country,
         'city': city,
         'entriesNumber': entriesNumber,
-        'individualToggle': individualToggle,
-        'entriesCoordinates': entriesCoordinates,
-        'entriesTrafficScore': entriesTrafficScore
+        'individualToggle': individualToggle.toString(),
+        'smartAlgorithmEnabled': smartAlgorithmEnabled.toString(),
+        'entries': entries?.map((entry) => entry.toJson()).toList() ?? [],
       };
 }

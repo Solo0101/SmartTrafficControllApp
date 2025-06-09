@@ -4,6 +4,8 @@ import 'package:smart_traffic_control_app/components/my_appbar.dart';
 import 'package:smart_traffic_control_app/components/my_button.dart';
 import 'package:smart_traffic_control_app/components/my_card.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
+import 'package:smart_traffic_control_app/models/intersection.dart';
+import 'package:smart_traffic_control_app/services/api_service.dart';
 
 import '../components/my_drawer.dart';
 import '../constants/router_constants.dart';
@@ -64,36 +66,35 @@ class _HomePageState extends State<HomePage> {
                 ),
               ]),
             ),
-            StreamBuilder<QuerySnapshot>(
-                // <2> Pass `Stream<QuerySnapshot>` to stream
-                stream: FirebaseFirestore.instance.collection('intersections').snapshots(),
+            FutureBuilder(
+                future: ApiService.fetchIntersections(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    final List<DocumentSnapshot> documents = snapshot.data!.docs;
+                    final List<Intersection> intersections = snapshot.data!;
                     return ListView(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
-                        children: documents
-                            .map((doc) => MyCard(
-                                  id: doc.id,
-                                  name: doc['name'],
-                                  address: doc['address'],
-                                  coordinates: doc['coordXY'],
-                                  country: doc['country'],
-                                  city: doc['city'],
+                        children: intersections
+                            .map((intersection) => MyCard(
+                                  id: intersection.id,
+                                  name: intersection.name,
+                                  address: intersection.address,
+                                  coordinates: intersection.coordinates,
+                                  country: intersection.country,
+                                  city: intersection.city,
                                 ))
                             .toList());
                   } else if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator(color: utilityButtonColor));
-                  } else if (!snapshot.hasData) {
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text('No intersections added at the moment!', style: TextStyle(color: primaryTextColor)),
                     );
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
                   }
                   return const Center(
-                    child: Text('No intersections added at the moment!', style: TextStyle(color: primaryTextColor)),
+                    child: Text('Error Loading Intersections!', style: TextStyle(color: primaryTextColor)),
                   );
                 }),
             Expanded(

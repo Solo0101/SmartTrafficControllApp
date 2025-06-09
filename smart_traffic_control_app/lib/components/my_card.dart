@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson_vi/geojson_vi.dart';
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:smart_traffic_control_app/services/api_service.dart';
 
 import '../constants/style_constants.dart';
 import '../models/intersection.dart';
@@ -12,7 +14,7 @@ class MyCard extends StatelessWidget {
   final String id;
   final String name;
   final String address;
-  final GeoPoint coordinates;
+  final GeoJSONPoint coordinates;
   final String country;
   final String city;
 
@@ -60,7 +62,7 @@ class MyCard extends StatelessWidget {
                   children: <Widget>[
                     IconButton(
                       onPressed: () {
-                        MapsLauncher.launchCoordinates(coordinates.latitude, coordinates.longitude);
+                        MapsLauncher.launchCoordinates(coordinates.coordinates.first, coordinates.coordinates.last);
                       },
                       icon: const Icon(Icons.pin_drop_rounded, color: primaryTextColor),
                     ),
@@ -86,13 +88,13 @@ class MyCard extends StatelessWidget {
           );
         },
       );
-      final response = await DatabaseService.fetchIntersectionById(id);
+      final response = await ApiService.fetchIntersection(id);
       if (context.mounted) Navigator.of(context).pop();
       if (response != null) {
         if (kDebugMode) {
           print(response.toString());
         }
-        response.entriesCoordinates ??= {};
+        response.entries ??= [];
         return response;
       }
     } catch (e) {
@@ -100,6 +102,6 @@ class MyCard extends StatelessWidget {
         print("Failed to fetch data: $e");
       }
     }
-    return Intersection(id: '', name: '', address: '', coordinates: const GeoPoint(0, 0), country: '', city: '', entriesNumber: 0, individualToggle: false, entriesCoordinates: {});
+    return Intersection(id: '', name: '', address: '', coordinates: GeoJSONPoint([0, 0]), country: '', city: '', entriesNumber: 0, individualToggle: false, smartAlgorithmEnabled: false, entries: []);
   }
 }

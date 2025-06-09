@@ -1,12 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:flutter_map_line_editor/flutter_map_line_editor.dart';
 import 'package:flutter_map_math/flutter_geo_math.dart';
+import 'package:geojson_vi/geojson_vi.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:smart_traffic_control_app/components/my_button.dart';
 import 'package:smart_traffic_control_app/components/my_textfield.dart';
+import 'package:smart_traffic_control_app/services/api_service.dart';
 import 'package:smart_traffic_control_app/services/database_service.dart';
 
 import '../components/my_appbar.dart';
@@ -40,6 +41,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
   late TextEditingController intersectionCoordinatesLongController;
   late TextEditingController intersectionEntriesNumberController;
   late TextEditingController intersectionIndividualToggleController;
+  late bool _isSaving;
 
   @override
   void initState() {
@@ -47,29 +49,37 @@ class _IntersectionPageState extends State<IntersectionPage> {
     intersectionCountryController = TextEditingController(text: widget.intersection.country);
     intersectionCityController = TextEditingController(text: widget.intersection.city);
     intersectionAddressController = TextEditingController(text: widget.intersection.address);
-    intersectionCoordinatesLatController = TextEditingController(text: widget.intersection.coordinates.latitude.toString());
-    intersectionCoordinatesLongController = TextEditingController(text: widget.intersection.coordinates.longitude.toString());
+    intersectionCoordinatesLatController = TextEditingController(text: widget.intersection.coordinates.coordinates.first.toString());
+    intersectionCoordinatesLongController = TextEditingController(text: widget.intersection.coordinates.coordinates.last.toString());
     intersectionEntriesNumberController = TextEditingController(text: widget.intersection.entriesNumber.toString());
     intersectionIndividualToggleController = TextEditingController(text: widget.intersection.individualToggle.toString());
 
-    if (widget.intersection.entriesCoordinates!.isEmpty) {
+    _isSaving = false;
+
+    if (widget.intersection.entries!.isEmpty) {
       polylines = List.generate(widget.intersection.entriesNumber, (index) => Polyline(points: [], color: Colors.green, strokeWidth: 15.0));
     } else {
       List<LatLng> tempPoints = [];
       var tempList = [];
-
+      var nullGeoPoint = GeoJSONPoint([0.0, 0.0]);
       for (var i = 0; i < widget.intersection.entriesNumber; i++) {
         tempPoints = [];
-        for (var j = 0; j < widget.intersection.entriesCoordinates!["entrieNumber$i"]!.length; j++) {
-          tempPoints.add(LatLng(widget.intersection.entriesCoordinates!["entrieNumber$i"]![j].latitude, widget.intersection.entriesCoordinates!["entrieNumber$i"]![j].longitude));
+        if(widget.intersection.entries![i].coordinates1!.coordinates.first != 0.0 && widget.intersection.entries![i].coordinates1!.coordinates.last != 0.0)
+        {
+          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates1!.coordinates.first, widget.intersection.entries![i].coordinates1!.coordinates.last));
         }
 
-        tempList.add(Polyline(points: tempPoints, color: getEntrieColor(widget.intersection.entriesTrafficScore!["entrieNumber$i"]!), strokeWidth: 15.0));
-      }
+        if(widget.intersection.entries![i].coordinates2!.coordinates.first != 0.0 && widget.intersection.entries![i].coordinates2!.coordinates.last != 0.0)
+        {
+          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates2!.coordinates.first, widget.intersection.entries![i].coordinates2!.coordinates.last));
+        }
 
+        tempList.add(Polyline(points: tempPoints, color: getEntryColor(widget.intersection.entries![i].trafficScore!), strokeWidth: 15.0));
+      }
       polylines = List.generate(widget.intersection.entriesNumber,
-          (index) => Polyline(points: tempList[index].points, color: getEntrieColor(widget.intersection.entriesTrafficScore!["entrieNumber$index"]!), strokeWidth: 15.0));
+          (index) => Polyline(points: tempList[index].points, color: getEntryColor(widget.intersection.entries![index].trafficScore!), strokeWidth: 15.0));
     }
+
     polyEditor = List.generate(
         widget.intersection.entriesNumber,
         (index) => PolyEditor(
@@ -136,7 +146,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
                               ~InteractiveFlag.rotate &
                               ~InteractiveFlag.flingAnimation,
                         ),
-                        initialCenter: LatLng(widget.intersection.coordinates.latitude, widget.intersection.coordinates.longitude),
+                        initialCenter: LatLng(widget.intersection.coordinates.coordinates.last, widget.intersection.coordinates.coordinates.first),
                         initialZoom: 17.0,
                         keepAlive: true,
                         onTap: (tapPosition, ll) {
@@ -203,7 +213,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
                               ~InteractiveFlag.rotate &
                               ~InteractiveFlag.flingAnimation,
                         ),
-                        initialCenter: LatLng(widget.intersection.coordinates.latitude, widget.intersection.coordinates.longitude),
+                        initialCenter: LatLng(widget.intersection.coordinates.coordinates.first, widget.intersection.coordinates.coordinates.last),
                         initialZoom: 17.0,
                         keepAlive: true,
                         onTap: (tapPosition, ll) {
@@ -254,33 +264,35 @@ class _IntersectionPageState extends State<IntersectionPage> {
               ),
               const SizedBox(height: 40),
               Form(
-                  child: Column(children: <Widget>[
+                  child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
                 MyTextField(
                   controller: intersectionNameController,
                   hintText: "Intersection name",
                 ),
                 MyTextField(
-                  controller: intersectionAddressController = TextEditingController(text: widget.intersection.address),
+                  controller: intersectionAddressController,
                   hintText: "Address",
                 ),
                 MyTextField(
-                  controller: intersectionCountryController = TextEditingController(text: widget.intersection.country),
+                  controller: intersectionCountryController,
                   hintText: "Country",
                 ),
                 MyTextField(
-                  controller: intersectionCityController = TextEditingController(text: widget.intersection.city),
+                  controller: intersectionCityController,
                   hintText: "City",
                 ),
                 MyTextField(
-                  controller: intersectionCoordinatesLatController = TextEditingController(text: widget.intersection.coordinates.latitude.toString()),
+                  controller: intersectionCoordinatesLatController,
                   hintText: "Latitude",
                 ),
                 MyTextField(
-                  controller: intersectionCoordinatesLongController = TextEditingController(text: widget.intersection.coordinates.longitude.toString()),
+                  controller: intersectionCoordinatesLongController,
                   hintText: "Longitude",
                 ),
                 MyTextField(
-                  controller: intersectionEntriesNumberController = TextEditingController(text: widget.intersection.entriesNumber.toString()),
+                  controller: intersectionEntriesNumberController,
                   hintText: "Entries number",
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
@@ -290,12 +302,12 @@ class _IntersectionPageState extends State<IntersectionPage> {
                         color: primaryTextColor,
                       )),
                   Checkbox(
-                      semanticLabel: "Individual entrie traffic light toggle",
+                      semanticLabel: "Individual entry traffic light toggle",
                       checkColor: Colors.white,
                       fillColor: WidgetStateProperty.resolveWith((states) {
                         return utilityButtonColor;
                       }),
-                      value: bool.parse((intersectionIndividualToggleController = TextEditingController(text: widget.intersection.individualToggle.toString())).text),
+                      value: bool.parse(intersectionIndividualToggleController.text),
                       onChanged: (bool? value) {
                         setState(() {
                           intersectionIndividualToggleController.text = value!.toString();
@@ -305,36 +317,93 @@ class _IntersectionPageState extends State<IntersectionPage> {
                 MyButton(
                     buttonColor: addGreenButtonColor,
                     textColor: primaryTextColor,
-                    buttonText: "Save",
-                    onPressed: () async {
-                      var indexPolyline = 0;
-                      for (var polyline in polylines) {
-                        List<GeoPoint> tempList = [];
-                        for (var point in polyline.points) {
-                          tempList.add(GeoPoint(point.latitude, point.longitude));
+                    buttonText: _isSaving ? "Saving..." : "Save",
+                    onPressed: _isSaving ? null : () async {
+
+                      setState(() {
+                        _isSaving = true;
+                      });
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false, // User cannot dismiss it
+                        builder: (BuildContext context) {
+                          return const Center(child: CircularProgressIndicator(color: utilityButtonColor));
+                        },
+                      );
+
+                      try {
+                        var indexPolyline = 0;
+                        for (var polyline in polylines) {
+                          List<GeoJSONPoint> tempList = [];
+                          for (var point in polyline.points) {
+                            tempList.add(GeoJSONPoint(
+                                [point.latitude, point.longitude]));
+                          }
+                          widget.intersection.entries![indexPolyline]
+                              .coordinates1?.coordinates =
+                              tempList[0].coordinates;
+                          widget.intersection.entries![indexPolyline]
+                              .coordinates2?.coordinates =
+                              tempList[1].coordinates;
+                          indexPolyline++;
                         }
-                        widget.intersection.entriesCoordinates?.update("entrieNumber$indexPolyline", (value) => tempList, ifAbsent: () => tempList);
-                        indexPolyline++;
+                        Intersection newIntersection = Intersection(
+                            id: widget.intersection.id,
+                            name: intersectionNameController.text,
+                            address: intersectionAddressController.text,
+                            coordinates: GeoJSONPoint([
+                              double.parse(
+                                  intersectionCoordinatesLatController.text),
+                              double.parse(
+                                  intersectionCoordinatesLongController.text)
+                            ]),
+                            country: intersectionCountryController.text,
+                            city: intersectionCityController.text,
+                            entriesNumber: int.parse(
+                                intersectionEntriesNumberController.text),
+                            individualToggle: bool.parse(
+                                intersectionIndividualToggleController.text),
+                            smartAlgorithmEnabled: true,
+                            entries: widget.intersection.entries);
+                        await ApiService.updateIntersection(newIntersection);
+
+                        if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Intersection edited successfully!',
+                                  style: TextStyle(color: primaryTextColor)),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+
+                      } catch (e) {
+                        if (context.mounted) Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading dialog on error
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error adding intersection: $e', style: const TextStyle(color: primaryTextColor)),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (context.mounted) {
+                          setState(() {
+                            _isSaving = false; // End loading
+                          });
+                        }
                       }
-                      Intersection newIntersection = Intersection(
-                          id: widget.intersection.id,
-                          name: intersectionNameController.text,
-                          address: intersectionAddressController.text,
-                          coordinates: GeoPoint(double.parse(intersectionCoordinatesLatController.text), double.parse(intersectionCoordinatesLongController.text)),
-                          country: intersectionCountryController.text,
-                          city: intersectionCityController.text,
-                          entriesNumber: int.parse(intersectionEntriesNumberController.text),
-                          individualToggle: bool.parse(intersectionIndividualToggleController.text),
-                          entriesCoordinates: widget.intersection.entriesCoordinates,
-                          entriesTrafficScore: widget.intersection.entriesTrafficScore);
-                      await DatabaseService.editIntersectionById(widget.intersection.id, newIntersection);
                     }),
                 MyButton(
                     buttonColor: importantButtonColor,
                     textColor: primaryTextColor,
                     buttonText: "Delete Intersection",
                     onPressed: () {
-                      DatabaseService.deleteIntersectionById(widget.intersection.id);
+                      ApiService.deleteIntersection(widget.intersection.id);
                     })
               ])),
             ]),
@@ -344,7 +413,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
     );
   }
 
-  Color getEntrieColor(int trafficScore) {
+  Color getEntryColor(int trafficScore) {
     if (trafficScore < 30) {
       return Colors.green;
     } else if (trafficScore < 70) {

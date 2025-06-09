@@ -55,6 +55,8 @@ dependencies:
   flutter_map_dragmarker: ^7.0.0
   flutter_map_math: ^0.1.7
   fl_chart: ^0.70.1
+  http: ^1.2.2
+  geojson_vi: ^2.2.5
 
 dev_dependencies:
   flutter_test:

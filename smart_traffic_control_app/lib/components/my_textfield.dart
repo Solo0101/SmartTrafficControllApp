@@ -40,7 +40,8 @@ class _MyTextFieldState extends ConsumerState<MyTextField> {
           color: Colors.black,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              // color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, 2),

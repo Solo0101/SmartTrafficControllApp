@@ -74,8 +74,8 @@ class DatabaseService {
         city: newIntersection.city,
         entriesNumber: newIntersection.entriesNumber,
         individualToggle: newIntersection.individualToggle,
-        entriesCoordinates: newIntersection.entriesCoordinates,
-        entriesTrafficScore: newIntersection.entriesTrafficScore,
+        smartAlgorithmEnabled: newIntersection.smartAlgorithmEnabled,
+        entries: newIntersection.entries
       );
       newIntersection = responseIntersection;
     } catch (e) {
