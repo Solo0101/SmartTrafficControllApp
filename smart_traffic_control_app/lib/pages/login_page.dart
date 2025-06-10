@@ -14,7 +14,7 @@ import 'home_page.dart';
 class LoginPage extends ConsumerWidget {
   LoginPage({super.key});
 
-  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -66,7 +66,7 @@ class LoginPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      MyTextField(controller: emailController, hintText: 'E-mail', obscureText: false, hasValidation: true),
+                      MyTextField(controller: usernameController, hintText: 'Username', obscureText: false, hasValidation: true),
                       MyTextField(controller: passwordController, hintText: 'Password', obscureText: true, isPassword: true, hasValidation: true),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(40.0, 15.0, 35.0, 20.0),
@@ -119,7 +119,7 @@ class LoginPage extends ConsumerWidget {
                           buttonText: 'Log in',
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              var loginResponse = await AuthService.login(emailController.text, passwordController.text, ref);
+                              var loginResponse = await AuthService.login(username: usernameController.text, password: passwordController.text);
                               if (context.mounted) {
                                 if (loginResponse == AuthResponse.success) {
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

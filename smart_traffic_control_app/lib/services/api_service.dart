@@ -65,7 +65,6 @@ class ApiService {
 
   static Future<void> addIntersection(Intersection intersection) async {
     var url = Uri.https(ApiConstants.baseUrl, ApiConstants.appCreateIntersectionEndpoint);
-    print(jsonEncode(intersection.toJson()));
     try {
       var response = await http.post(
           url,
@@ -101,7 +100,7 @@ class ApiService {
         body: jsonEncode(intersection.toJson())
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         // Successful POST request, handle the response here
         final responseData = jsonDecode(response.body);
         if (kDebugMode) {

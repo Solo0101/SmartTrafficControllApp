@@ -8,7 +8,7 @@ import 'package:smart_traffic_control_app/services/api_service.dart';
 import '../constants/style_constants.dart';
 import '../models/intersection.dart';
 import '../pages/intersection_page.dart';
-import '../services/database_service.dart';
+import '../services/firestore_database_service.dart';
 
 class MyCard extends StatelessWidget {
   final String id;
@@ -33,12 +33,12 @@ class MyCard extends StatelessWidget {
     return Center(
       child: GestureDetector(
         onTap: () async {
-          final intersection = await fetchIntersectionById(context, id);
+          final intersection = await ApiService.fetchIntersection(id);
           if (context.mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => IntersectionPage(intersection: intersection),
+                builder: (context) => IntersectionPage(intersection: intersection!),
               ),
             );
           }

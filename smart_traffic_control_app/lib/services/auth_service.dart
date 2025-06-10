@@ -1,220 +1,219 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smart_traffic_control_app/models/user.dart' as local_user;
+import 'package:http/http.dart' as http;
+import 'package:smart_traffic_control_app/models/user.dart' ;
 import 'package:smart_traffic_control_app/pages/home_page.dart';
 import 'package:smart_traffic_control_app/pages/login_page.dart';
 import 'package:smart_traffic_control_app/services/hive_service.dart';
-
-import '../constants/style_constants.dart';
+import 'package:smart_traffic_control_app/constants/api_constants.dart';
+import 'package:smart_traffic_control_app/constants/style_constants.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 String snackText = '';
 
-enum AuthResponse { success, invalidCredentials, badRequest, randomError }
+enum AuthResponse { success, invalidCredentials, badRequest, randomError, passwordConfirmNotMatching }
 
 class AuthService {
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static const _storage = FlutterSecureStorage();
 
-  static Future<AuthResponse> login(
-      String email, String password, var context) async {
+  // Method to securely store tokens
+  static Future<void> _persistTokens(String accessToken, String refreshToken) async {
+    await _storage.write(key: 'access_token', value: accessToken);
+    await _storage.write(key: 'refresh_token', value: refreshToken);
+  }
+
+  // Method to get the access token
+  static Future<String?> getAccessToken() async {
+    return await _storage.read(key: 'access_token');
+  }
+
+  static Future<AuthResponse> register({required String username, required String email, required String password, required String confirmPassword, String firstName="", String lastName=""}) async {
+    if (password != confirmPassword) {
+      return AuthResponse.passwordConfirmNotMatching;
+    }
+    final url = Uri.https(ApiConstants.baseUrl, ApiConstants.appRegisterEndpoint);
     try {
-      var credential = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-
-      showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (context) => const Center(
-              child: CircularProgressIndicator(color: placeholderTextColor)));
-
-      var user = local_user.User(
-          id: credential.user!.uid,
-          email: credential.user!.email!,
-          name: '',
-          phoneNumber: '',
-          country: '',
-          countyOrState: '',
-          city: '');
-
-      if (credential.user != null && credential.user?.email != null) {
-        saveUserData(user);
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        snackText = 'No user found for that email!';
-        if (kDebugMode) {
-          print('No user found for that email!');
-        }
+      final response = await http.post(
+        url,
+        headers: ApiConstants.apiHeader,
+        body: jsonEncode({
+          'username': username,
+          'email': email,
+          'first_name': firstName,
+          'last_name': lastName,
+          'password': password,
+        }),
+      );
+      if(response.statusCode == 201) {
+        return AuthResponse.success;
+      } else if (response.statusCode == 404) {
+        return AuthResponse.invalidCredentials;
+      } else if (response.statusCode == 400) {
         return AuthResponse.badRequest;
-      } else if (e.code == 'invalid-email') {
-        snackText = 'Invalid email!';
+      } else {
+        return AuthResponse.randomError;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Registration error: $e");
+      }
+      return AuthResponse.randomError;
+    }
+  }
+
+  static Future<AuthResponse> login({required String username, required String password}) async {
+    final url = Uri.https(ApiConstants.baseUrl, ApiConstants.appLoginEndpoint);
+    try {
+      final response = await http.post(
+        url,
+        headers: ApiConstants.apiHeader,
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        await _persistTokens(data['access'], data['refresh']);
+        User? user = await getCurrentUser(username);
+        if (user == null) {
+          if (kDebugMode) {
+            print("Login error: Could not retrieve user data from backend!");
+          }
+          logout();
+          return AuthResponse.randomError;
+        }
+
+        HiveService().upsertUserInBox(user);
+
+        // On successful login, parse and store the tokens
+
+        return AuthResponse.success;
+      } else if (response.statusCode == 404) {
         if (kDebugMode) {
-          print('Invalid email!');
+          print("Login error: $AuthResponse.randomError");
         }
         return AuthResponse.invalidCredentials;
-      } else if (e.code == 'wrong-password') {
-        snackText = 'Wrong password provided for that user!';
+      } else if (response.statusCode == 400) {
         if (kDebugMode) {
-          print('Wrong password provided for that user!');
-        }
-        return AuthResponse.invalidCredentials;
-      } else if (e.code == 'invalid-credential') {
-        snackText = 'Invalid credentials!';
-        Navigator.pop(context);
-        if (kDebugMode) {
-          print('Invalid credentials!');
+          print("Login error: $AuthResponse.randomError");
         }
         return AuthResponse.badRequest;
       } else {
         if (kDebugMode) {
-          print(e.code);
-          snackText = e.code;
-          return AuthResponse.badRequest;
+          print("Login error: $AuthResponse.randomError");
         }
-      }
-    }
-    snackText = 'Logged in!';
-    if (kDebugMode) {
-      print('Logged in!');
-    }
-    return AuthResponse.success;
-  }
-
-  static Future<AuthResponse> register(String email, String password,
-      String confirmPassword, var context) async {
-    if (password != confirmPassword) {
-      snackText = 'Passwords do not match!';
-      if (kDebugMode) {
-        print('Passwords do not match!');
-      }
-      return Future.value(AuthResponse.badRequest);
-    }
-
-    try {
-      var credential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      var user = local_user.User(
-          id: credential.user!.uid,
-          email: credential.user!.email!,
-          name: '',
-          phoneNumber: '',
-          country: '',
-          countyOrState: '',
-          city: '');
-      if (user.id == '') {
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const Center(
-                child: CircularProgressIndicator(color: placeholderTextColor)));
-      }
-      if (credential.user != null && credential.user?.email != null) {
-        saveUserData(user);
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        snackText = 'Password is to weak.';
-        if (kDebugMode) {
-          print('Password is to weak.');
-        }
-        return Future.value(AuthResponse.badRequest);
-      } else if (e.code == 'email-already-in-use') {
-        snackText = 'The account already exists for that email.';
-        if (kDebugMode) {
-          print('The account already exists for that email.');
-        }
-        return Future.value(AuthResponse.badRequest);
+        return AuthResponse.randomError;
       }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        print("Login error: $e");
       }
+      return AuthResponse.randomError;
     }
-    snackText = 'Registered successfully!';
-    if (kDebugMode) {
-      print('Registered successfully!');
-    }
-    return Future.value(AuthResponse.success);
   }
 
-  static void saveUserData(local_user.User user) async {
-    HiveService().upsertUserInBox(user);
-  }
+  static Future<User?> getCurrentUser(String username) async {
+    final token = await getAccessToken();
+    if (token == null) {
+      return null; // Not authenticated
+    }
 
-  static Future<void> signOutUser(var context) async {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-            child: CircularProgressIndicator(color: placeholderTextColor)));
+    final url = Uri.https(ApiConstants.baseUrl, "${ApiConstants.appGetCurrentUserEndpoint}/$username");
     try {
-      return await _auth.signOut();
+      final response = await http.get(
+        url,
+        headers: ApiConstants.apiHeader
+      );
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the JSON and return the AppUser object
+        final data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } else {
+        // If the request fails, return null
+        if (kDebugMode) {
+          print("Error fetching user data: ${response.statusCode}");
+        }
+        return null;
+      }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        print("Error fetching user data: $e");
       }
     }
+    return null;
   }
 
-  static Future<void> changePassword(
-      String email, String password, String newPassword, var context) async {
-    final user = _auth.currentUser!;
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-            child: CircularProgressIndicator(color: placeholderTextColor)));
+  static Future<User?> updateCurrentUser(User user) async {
+    final token = await getAccessToken();
+    if (token == null) {
+      return null; // Not authenticated
+    }
+
+    final url = Uri.https(ApiConstants.baseUrl, "${ApiConstants.appGetCurrentUserEndpoint}/${user.username}");
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      final response = await http.put(
+          url,
+          headers: ApiConstants.apiHeader,
+          body: jsonEncode(user.toJson())
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        snackText = 'Wrong password provided for that user.';
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the JSON and return the AppUser object
+        final data = jsonDecode(response.body);
+        var newUser = User.fromJson(data);
+        HiveService().upsertUserInBox(newUser);
+        return newUser;
+      } else {
+        // If the request fails, return null
         if (kDebugMode) {
-          print('Wrong password provided for that user.');
+          print("Error updating user data: ${response.statusCode}");
         }
-        return;
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating user data: $e");
       }
     }
-    if (password == newPassword) {
-      snackText = 'The new password has to be different from the old password!';
-      if (kDebugMode) {
-        print('The new password has to be different from the old password!');
-      }
-    } else {
-      user.updatePassword(newPassword).then((_) {
-        if (kDebugMode) {
-          print("Successfully changed password");
-        }
-      }).catchError((error) {
-        if (kDebugMode) {
-          print("Password can't be changed$error");
-        }
-      });
-      snackText = 'Password changed successfully!';
-      if (kDebugMode) {
-        print('Password changed successfully!');
-      }
-    }
+    return null;
+  }
+
+  static Future<bool> isAuthenticated() async {
+    final token = await getAccessToken();
+    return token != null;
+  }
+
+  static Future<void> logout() async {
+    await HiveService().logoutUser();
+    await _storage.deleteAll();
   }
 
   static Future<void> deleteAccount(var context) async {
-    final user = _auth.currentUser!;
+    final user = HiveService().getUser()!;
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(
             child: CircularProgressIndicator(color: placeholderTextColor)));
     try {
-      user.delete();
-      signOutUser(context);
+      var response = await http.delete(
+        Uri.https(ApiConstants.baseUrl, "${ApiConstants.appDeleteCurrentUserEndpoint}/${user.username}"),
+        headers: ApiConstants.apiHeader,
+        body: jsonEncode(user.toJson())
+      );
+      if (response.statusCode == 200) {
+        snackText = 'Account successfully deleted!';
+        await logout();
+        if (kDebugMode) {
+          print('Account successfully deleted!');
+        }
+      }
     } catch (e) {
       if (kDebugMode) {
         print(e);

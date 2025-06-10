@@ -15,7 +15,9 @@ class RegisterPage extends ConsumerWidget {
   RegisterPage({super.key});
 
   final emailController = TextEditingController();
-  final fullNameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final phoneNumberController = TextEditingController();
   final countryController = TextEditingController();
   final countyOrStateController = TextEditingController();
@@ -81,30 +83,43 @@ class RegisterPage extends ConsumerWidget {
                           hasValidation: true,
                         ),
                         MyTextField(
-                          controller: fullNameController,
-                          hintText: 'Full Name',
+                          controller: usernameController,
+                          hintText: 'Username',
                           obscureText: false,
                         ),
                         MyTextField(
-                          controller: phoneNumberController,
-                          hintText: 'Phone Number',
+                          controller: firstNameController,
+                          hintText: 'First Name',
                           obscureText: false,
                         ),
                         MyTextField(
-                          controller: countryController,
-                          hintText: 'Country',
+                          controller: lastNameController,
+                          hintText: 'Last Name',
                           obscureText: false,
                         ),
-                        MyTextField(
-                          controller: countyOrStateController,
-                          hintText: 'County/State',
-                          obscureText: false,
-                        ),
-                        MyTextField(
-                          controller: cityController,
-                          hintText: 'City',
-                          obscureText: false,
-                        ),
+                        //////////////////////////////////////////
+                        //TODO: Move to profile page
+                        // MyTextField(
+                        //   controller: phoneNumberController,
+                        //   hintText: 'Phone Number',
+                        //   obscureText: false,
+                        // ),
+                        // MyTextField(
+                        //   controller: countryController,
+                        //   hintText: 'Country',
+                        //   obscureText: false,
+                        // ),
+                        // MyTextField(
+                        //   controller: countyOrStateController,
+                        //   hintText: 'County/State',
+                        //   obscureText: false,
+                        // ),
+                        // MyTextField(
+                        //   controller: cityController,
+                        //   hintText: 'City',
+                        //   obscureText: false,
+                        // ),
+                        /////////////////////////////////////////
                         MyTextField(
                           controller: passwordController,
                           hintText: 'Password',
@@ -171,24 +186,17 @@ class RegisterPage extends ConsumerWidget {
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       var registerResponse = await AuthService.register(
-                                          emailController.text,
-                                          // name: fullNameController.text,
-                                          // phoneNumber:
-                                          //     phoneNumberController.text,
-                                          // country: countryController.text,
-                                          // countyOrState:
-                                          //     countyOrStateController.text,
-                                          // city: cityController.text,
-                                          passwordController.text,
-                                          confirmPasswordController.text,
-                                          ref);
+                                          email: emailController.text,
+                                          username: usernameController.text,
+                                          password: passwordController.text,
+                                          confirmPassword: confirmPasswordController.text);
                                       if (context.mounted) {
                                         if (registerResponse == AuthResponse.success) {
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                             content: Text('Registered successfully!'),
                                             duration: Duration(seconds: 2),
                                           ));
-                                          var loginResponse = await AuthService.login(emailController.text, passwordController.text, ref);
+                                          var loginResponse = await AuthService.login(username: usernameController.text, password: passwordController.text);
                                           if (context.mounted) {
                                             if (loginResponse == AuthResponse.success) {
                                               Navigator.pushReplacement(
@@ -202,6 +210,11 @@ class RegisterPage extends ConsumerWidget {
                                               ));
                                             }
                                           }
+                                        } else if (registerResponse == AuthResponse.passwordConfirmNotMatching) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                            content: Text('Passwords do not match!'),
+                                            duration: Duration(seconds: 2),
+                                          ));
                                         } else if (registerResponse == AuthResponse.badRequest) {
                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                             content: Text('Complete all fields!'),

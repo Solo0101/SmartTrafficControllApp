@@ -8,7 +8,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:smart_traffic_control_app/components/my_button.dart';
 import 'package:smart_traffic_control_app/components/my_textfield.dart';
 import 'package:smart_traffic_control_app/services/api_service.dart';
-import 'package:smart_traffic_control_app/services/database_service.dart';
 
 import '../components/my_appbar.dart';
 import '../components/my_chart.dart';
@@ -61,17 +60,16 @@ class _IntersectionPageState extends State<IntersectionPage> {
     } else {
       List<LatLng> tempPoints = [];
       var tempList = [];
-      var nullGeoPoint = GeoJSONPoint([0.0, 0.0]);
       for (var i = 0; i < widget.intersection.entriesNumber; i++) {
         tempPoints = [];
         if(widget.intersection.entries![i].coordinates1!.coordinates.first != 0.0 && widget.intersection.entries![i].coordinates1!.coordinates.last != 0.0)
         {
-          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates1!.coordinates.first, widget.intersection.entries![i].coordinates1!.coordinates.last));
+          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates1!.coordinates.last, widget.intersection.entries![i].coordinates1!.coordinates.first));
         }
 
         if(widget.intersection.entries![i].coordinates2!.coordinates.first != 0.0 && widget.intersection.entries![i].coordinates2!.coordinates.last != 0.0)
         {
-          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates2!.coordinates.first, widget.intersection.entries![i].coordinates2!.coordinates.last));
+          tempPoints.add(LatLng(widget.intersection.entries![i].coordinates2!.coordinates.last, widget.intersection.entries![i].coordinates2!.coordinates.first));
         }
 
         tempList.add(Polyline(points: tempPoints, color: getEntryColor(widget.intersection.entries![i].trafficScore!), strokeWidth: 15.0));
@@ -338,7 +336,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           List<GeoJSONPoint> tempList = [];
                           for (var point in polyline.points) {
                             tempList.add(GeoJSONPoint(
-                                [point.latitude, point.longitude]));
+                                [point.longitude, point.latitude]));
                           }
                           widget.intersection.entries![indexPolyline]
                               .coordinates1?.coordinates =
@@ -385,7 +383,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Error adding intersection: $e', style: const TextStyle(color: primaryTextColor)),
+                              content: Text('Error editing intersection: $e', style: const TextStyle(color: primaryTextColor)),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -401,9 +399,54 @@ class _IntersectionPageState extends State<IntersectionPage> {
                 MyButton(
                     buttonColor: importantButtonColor,
                     textColor: primaryTextColor,
-                    buttonText: "Delete Intersection",
-                    onPressed: () {
-                      ApiService.deleteIntersection(widget.intersection.id);
+                    buttonText: _isSaving ? 'Deleting...' : "Delete Intersection",
+                    onPressed: _isSaving ? null : () async {
+
+                      setState(() {
+                        _isSaving = true;
+                      });
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false, // User cannot dismiss it
+                        builder: (BuildContext context) {
+                          return const Center(child: CircularProgressIndicator(
+                              color: utilityButtonColor));
+                        });
+
+                      try {
+                        await ApiService.deleteIntersection(
+                            widget.intersection.id);
+
+                        if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Intersection deleted successfully!',
+                                  style: TextStyle(color: primaryTextColor)),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+
+                      } catch (e) {
+                        if (context.mounted) Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading dialog on error
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error deleting intersection: $e', style: const TextStyle(color: primaryTextColor)),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (context.mounted) {
+                          setState(() {
+                            _isSaving = false; // End loading
+                          });
+                        }
+                      }
                     })
               ])),
             ]),

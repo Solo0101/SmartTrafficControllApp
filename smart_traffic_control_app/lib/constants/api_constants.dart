@@ -13,14 +13,10 @@ class ApiConstants {
   'Authorization': 'Basic ${ApiConstants.encodedCredentials}'
   };
 
-  // static const String appRegisterEndpoint = 'api/User/register';
-  // static const String appLoginEndpoint = 'api/User/login';
-
-  // static const String appGetAllUsersEndpoint = 'api/User/getAll';
-  // static const String appGetUserByIdEndpoint = 'api/User/';
-  // static const String appUpdateUserByIdEndpoint = 'api/User/';
-  // static const String appDeleteUserByIdEndpoint = 'api/User/';
-  // static const String appGetUserByEmailEndpoint = 'api/User/get/email/';
+  static const String appRegisterEndpoint = 'auth/register/';
+  static const String appLoginEndpoint = 'auth/token/';
+  static const String appGetCurrentUserEndpoint = 'auth/me';
+  static const String appDeleteCurrentUserEndpoint = 'auth/delete/me';
 
   static const String appGetStatisticsEndpoint = 'traffic_light/get/get_statistics';
   static const String appGetCurrentIntersectionStatusEndpoint = 'traffic_light/get/get_current_intersection_status';
