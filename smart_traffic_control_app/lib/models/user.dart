@@ -55,10 +55,12 @@ class User extends HiveObject {
         'username': username,
         'first_name': firstName,
         'last_name': lastName,
-        'phone_number': phoneNumber,
-        'country': country,
-        'county_or_state': countyOrState,
-        'city': city,
+        'profile': {
+          'phone': phoneNumber,
+          'country': country,
+          'county_or_state': countyOrState,
+          'city': city
+        }
       };
 
   User getValue() {

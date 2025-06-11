@@ -157,6 +157,8 @@ class AuthService {
 
     final url = Uri.https(ApiConstants.baseUrl, "${ApiConstants.appGetCurrentUserEndpoint}/${user.username}");
     try {
+      var newUser = jsonEncode(user.toJson());
+      print(newUser);
       final response = await http.put(
           url,
           headers: ApiConstants.apiHeader,
