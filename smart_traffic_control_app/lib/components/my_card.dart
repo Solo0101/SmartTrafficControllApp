@@ -33,12 +33,12 @@ class MyCard extends StatelessWidget {
     return Center(
       child: GestureDetector(
         onTap: () async {
-          final intersection = await ApiService.fetchIntersection(id);
+          final intersection = await _fetchIntersectionById(context, id);
           if (context.mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => IntersectionPage(intersection: intersection!),
+                builder: (context) => IntersectionPage(intersection: intersection),
               ),
             );
           }
@@ -77,7 +77,7 @@ class MyCard extends StatelessWidget {
     );
   }
 
-  Future<Intersection> fetchIntersectionById(BuildContext context, String id) async {
+  Future<Intersection> _fetchIntersectionById(BuildContext context, String id) async {
     try {
       showDialog(
         barrierDismissible: false,
