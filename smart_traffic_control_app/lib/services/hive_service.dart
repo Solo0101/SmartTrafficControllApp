@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:smart_traffic_control_app/models/user.dart';
 // import 'package:frontend/services/api_service.dart';
@@ -31,7 +30,6 @@ class HiveService {
 
   Future<void> logoutUser() async {
     await clearBoxes();
-    // Perform any additional cleanup if needed
-    // For example, you might want to reset any in-memory user data or state
+
   }
 }

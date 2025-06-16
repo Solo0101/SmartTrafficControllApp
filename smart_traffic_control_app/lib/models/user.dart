@@ -9,20 +9,26 @@ class User extends HiveObject {
   @HiveField(1)
   final String email;
   @HiveField(2)
-  final String name;
+  final String username;
   @HiveField(3)
-  final String phoneNumber;
+  final String firstName;
   @HiveField(4)
-  final String country;
+  final String lastName;
   @HiveField(5)
-  final String countyOrState;
+  final String phoneNumber;
   @HiveField(6)
+  final String country;
+  @HiveField(7)
+  final String countyOrState;
+  @HiveField(8)
   final String city;
 
   User({
     required this.id,
-    required this.name,
     required this.email,
+    required this.username,
+    required this.firstName,
+    required this.lastName,
     required this.phoneNumber,
     required this.country,
     required this.countyOrState,
@@ -31,31 +37,39 @@ class User extends HiveObject {
 
   // receive data from the server and convert it to a User object
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'],
-        name: json['name'],
+        id: json['id'].toString(),
         email: json['email'],
-        phoneNumber: json['phoneNumber'],
-        country: json['country'],
-        countyOrState: json['countyOrState'],
-        city: json['city'],
+        username: json['username'],
+        firstName: json['first_name'],
+        lastName: json['last_name'],
+        phoneNumber: json['profile']['phone'],
+        country: json['profile']['country'],
+        countyOrState: json['profile']['county_or_state'],
+        city: json['profile']['city'],
       );
 
   // convert the User object to a JSON object to send to the server
   Map<String, dynamic> toJson() => {
         'id': id,
-        'name': name,
         'email': email,
-        'phoneNumber': phoneNumber,
-        'country': country,
-        'countyOrState': countyOrState,
-        'city': city,
+        'username': username,
+        'first_name': firstName,
+        'last_name': lastName,
+        'profile': {
+          'phone': phoneNumber,
+          'country': country,
+          'county_or_state': countyOrState,
+          'city': city
+        }
       };
 
   User getValue() {
     return User(
       id: id,
-      name: name,
       email: email,
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
       phoneNumber: phoneNumber,
       country: country,
       countyOrState: countyOrState,

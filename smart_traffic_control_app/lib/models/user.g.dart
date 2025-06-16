@@ -18,32 +18,38 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       id: fields[0] as String,
-      name: fields[2] as String,
       email: fields[1] as String,
-      phoneNumber: fields[3] as String,
-      country: fields[4] as String,
-      countyOrState: fields[5] as String,
-      city: fields[6] as String,
+      username: fields[2] as String,
+      firstName: fields[3] as String,
+      lastName: fields[4] as String,
+      phoneNumber: fields[5] as String,
+      country: fields[6] as String,
+      countyOrState: fields[7] as String,
+      city: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.email)
       ..writeByte(2)
-      ..write(obj.name)
+      ..write(obj.username)
       ..writeByte(3)
-      ..write(obj.phoneNumber)
+      ..write(obj.firstName)
       ..writeByte(4)
-      ..write(obj.country)
+      ..write(obj.lastName)
       ..writeByte(5)
-      ..write(obj.countyOrState)
+      ..write(obj.phoneNumber)
       ..writeByte(6)
+      ..write(obj.country)
+      ..writeByte(7)
+      ..write(obj.countyOrState)
+      ..writeByte(8)
       ..write(obj.city);
   }
 

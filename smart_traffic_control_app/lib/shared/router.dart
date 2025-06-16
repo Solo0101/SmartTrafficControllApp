@@ -5,7 +5,7 @@ import 'package:smart_traffic_control_app/pages/login_page.dart';
 import 'package:smart_traffic_control_app/pages/register_page.dart';
 
 import '../pages/add_intersection_page.dart';
-// import 'package:smart_traffic_control_app/pages/user_profile_page.dart';
+import 'package:smart_traffic_control_app/pages/profile_page.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -18,10 +18,10 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const HomePage());
       case addIntersectionPageRoute:
         return MaterialPageRoute(builder: (_) => const AddIntersectionPage());
+      case myProfilePageRoute:
+        return MaterialPageRoute(builder: (_) => const UserProfilePage());
       // case settingsPageRoute:
       //   return MaterialPageRoute(builder: (_) => const SettingsPage());
-      // case myProfilePageRoute:
-      //   return MaterialPageRoute(builder: (_) => const UserProfilePage());
 
       ///Add new cases with routes HERE!!!!!!!
 
