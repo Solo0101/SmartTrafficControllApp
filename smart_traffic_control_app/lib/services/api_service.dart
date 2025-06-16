@@ -229,6 +229,32 @@ class ApiService {
     }
   }
 
+  static Future<void> resetStatistics(String id) async {
+    var url = Uri.https(ApiConstants.baseUrl, "${ApiConstants.appResetStatisticsEndpoint}/$id");
+    try {
+      await http.post(url, headers: ApiConstants.apiHeader);
+      return;
+    } catch (e) {
+      throw("Failed to reset statistics: $e");
+    }
+  }
+
+  static Future<Map<String, dynamic>> getCurrentStatus(String id) async {
+    var url = Uri.https(ApiConstants.baseUrl, "${ApiConstants.appGetCurrentIntersectionStatusEndpoint}/$id");
+    try {
+      var response = await http.get(url, headers: ApiConstants.apiHeader);
+      if (kDebugMode) {
+        print(jsonDecode(response.body));
+      }
+      return {
+        "connected": jsonDecode(response.body)["connected"],
+        "state": jsonDecode(response.body)["state"]
+      };
+    } catch (e) {
+      throw("Failed to get current status: $e");
+    }
+  }
+
   static Future<void> onPressedApiCall({required bool isSaving, required BuildContext context, required Future apiCall, required StateSetter setState, required String actionText, required String errorText}) async {
     setState(() {
       isSaving = true;

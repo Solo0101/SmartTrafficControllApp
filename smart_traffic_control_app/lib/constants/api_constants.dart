@@ -19,6 +19,7 @@ class ApiConstants {
   static const String appDeleteCurrentUserEndpoint = 'auth/delete/me';
 
   static const String appGetStatisticsEndpoint = 'traffic_light/get/get_statistics';
+  static const String appResetStatisticsEndpoint = 'traffic_light/post/post_reset_intersection_statistics';
   static const String appGetCurrentIntersectionStatusEndpoint = 'traffic_light/get/get_current_intersection_status';
   static const String appToggleTrafficLightsEndpoint = 'traffic_light/post/post_traffic_light_toggle';
   static const String appTrafficLightsAllRedEndpoint = 'traffic_light/post/post_traffic_light_all_red';

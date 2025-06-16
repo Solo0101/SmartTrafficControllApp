@@ -37,7 +37,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
   int polylinesCounter = 0;
   FlutterMapMath mapCalculator = FlutterMapMath();
 
-  late Intersection _intersection;
+  late Intersection   _intersection;
   Timer? _dataFetchTimer;
 
   // State variables to hold the single latest data point for each chart
@@ -201,6 +201,59 @@ class _IntersectionPageState extends State<IntersectionPage> {
     }
   }
 
+  Future<void> _fetchCurrentIntersectionStatus() async {
+    try {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+          const Center(child: CircularProgressIndicator()));
+
+      final response = await ApiService.getCurrentStatus(_intersection.id);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      setState(() {
+        _intersection.connectionStatus = response["connected"]
+            ? ConnectionStatus.online
+            : ConnectionStatus.offline;
+        _intersection.currentState = response["state"];
+
+        switch (_intersection.currentState) {
+          case "ALL_OFF":
+            initialTurnOnOffValue = false;
+            initialToggleAllRedValue = false;
+            initialToggleHazardModeValue = false;
+            break;
+          case "ALL_RED":
+            initialTurnOnOffValue = true;
+            initialToggleAllRedValue = true;
+            initialToggleHazardModeValue = false;
+            break;
+          case "ALL_YELLOW":
+            initialTurnOnOffValue = true;
+            initialToggleAllRedValue = false;
+            initialToggleHazardModeValue = true;
+            break;
+          default:
+            initialTurnOnOffValue = true;
+            initialToggleAllRedValue = false;
+            initialToggleHazardModeValue = false;
+        }
+        _isSaving = false;
+      });
+
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to refresh intersection data: $e")),
+      );
+    }
+  }
+
+
+
   void _updatePolylines() {
     if (_intersection.entries == null || _intersection.entries!.isEmpty) {
       polylines = List.generate(
@@ -264,6 +317,9 @@ class _IntersectionPageState extends State<IntersectionPage> {
           onDestinationSelected: (int index) {
             if (index == 0 && currentPageIndex != 0) {
               _fetchFullIntersection();
+            }
+            if (index == 1 && currentPageIndex != 1) {
+              _fetchCurrentIntersectionStatus();
             }
             setState(() {
               currentPageIndex = index;
@@ -347,17 +403,36 @@ class _IntersectionPageState extends State<IntersectionPage> {
                         width: MediaQuery.of(context).size.width,
                         child: MyChart(
                             title: "Average Waiting Time",
-                            initialChartData:
-                                _intersection.avgWaitingTimeDataPoints,
+                            initialChartData: _intersection.avgWaitingTimeDataPoints.isNotEmpty ?
+                                _intersection.avgWaitingTimeDataPoints : [],
                             currentChartDataPoint: _latestWaitingTimePoint)),
                     SizedBox(
                         height: 250,
                         width: MediaQuery.of(context).size.width,
                         child: MyChart(
                             title: "Average Vehicle Throughput",
-                            initialChartData:
-                                _intersection.avgVehicleThroughputDataPoints,
+                            initialChartData: _intersection.avgVehicleThroughputDataPoints.isNotEmpty ?
+                                _intersection.avgVehicleThroughputDataPoints : [],
                             currentChartDataPoint: _latestThroughputPoint)),
+                        MyButton(
+                            buttonColor: utilityButtonColor,
+                            textColor: primaryTextColor,
+                            buttonText: "Reset Statistics Data",
+                            onPressed: _isSaving ? null : () async {
+                              await ApiService.onPressedApiCall(
+                                isSaving: _isSaving,
+                                context: context,
+                                apiCall: ApiService.resetStatistics(
+                                    _intersection.id),
+                                setState: setState,
+                                actionText: "Reset statistics data",
+                                errorText: 'resetting statistics data',
+                              );
+                              setState(() {
+                                _fetchFullIntersection();
+                              });
+                            }
+                        )
                   ]),
                 ),
               ),
@@ -383,6 +458,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           onChanged: (newValue) {
                             setState(() {
                               initialTurnOnOffValue = newValue;
+                              initialToggleAllRedValue = false;
+                              initialToggleHazardModeValue = false;
                             });
                           },
                         ),
@@ -418,6 +495,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           onChanged: (newValue) {
                             setState(() {
                               initialToggleAllRedValue = newValue;
+                              initialTurnOnOffValue = true;
+                              initialToggleHazardModeValue = false;
                             });
                           },
                         ),
@@ -436,6 +515,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           onChanged: (newValue) {
                             setState(() {
                               initialToggleHazardModeValue = newValue;
+                              initialToggleAllRedValue = false;
+                              initialTurnOnOffValue = true;
                             });
                           },
                         ),

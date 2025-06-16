@@ -29,8 +29,7 @@ class _MyChartState extends State<MyChart> {
   double _axisInterval = const Duration(seconds: 5).inSeconds.toDouble();
 
   @override
-  void initState() {
-    super.initState();
+  void initState()  {
     // Initialize the chart's internal data with a mutable copy of the initial data
     _chartData = List.from(widget.initialChartData);
     _updateAxisRanges();
@@ -40,6 +39,7 @@ class _MyChartState extends State<MyChart> {
       enablePanning: true,
       zoomMode: ZoomMode.xy,
     );
+    super.initState();
   }
 
   // This lifecycle method is key. It's called when the parent widget rebuilds.
@@ -53,6 +53,7 @@ class _MyChartState extends State<MyChart> {
         !_chartData.contains(widget.currentChartDataPoint)) {
       setState(() {
         _chartData.add(widget.currentChartDataPoint!);
+
         _updateAxisRanges();
 
         // Optional: Keep the chart from growing indefinitely
@@ -109,6 +110,9 @@ class _MyChartState extends State<MyChart> {
     if(visibleDurationMs < minuteMs * 3) {
       newFormat = DateFormat.Hms();
       newInterval = const Duration(seconds: 5).inSeconds.toDouble();
+    } else if (visibleDurationMs < minuteMs * 15) {
+      newFormat = DateFormat.Hms();
+      newInterval = const Duration(seconds: 30).inSeconds.toDouble();
     } else if (visibleDurationMs < hourMs * 2) {
       newFormat = DateFormat.Hms();
       newInterval = const Duration(seconds: 15).inSeconds.toDouble();
@@ -171,7 +175,7 @@ class _MyChartState extends State<MyChart> {
             onRendererCreated: (ChartSeriesController controller) {
               _chartSeriesController = controller;
             },
-            animationDuration: 1000,
+            animationDuration: 500,
             dataSource: _chartData,
             xValueMapper: (LiveChartData data, _) => data.time,
             yValueMapper: (LiveChartData data, _) => data.value,
