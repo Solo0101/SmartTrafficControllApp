@@ -44,7 +44,7 @@ class DatabaseService {
 
   static Future<void> editIntersectionById(String id, Intersection newIntersection) async {
     try {
-      final response = await intersections.doc(id).set(newIntersection.toJson());
+      await intersections.doc(id).set(newIntersection.toJson());
     } catch (e) {
       if (kDebugMode) {
         print("Failed to edit data: $e");
@@ -54,7 +54,7 @@ class DatabaseService {
 
   static Future<void> deleteIntersectionById(String id) async {
     try {
-      final response = await intersections.doc(id).delete();
+      await intersections.doc(id).delete();
     } catch (e) {
       if (kDebugMode) {
         print("Failed to delete data: $e");
