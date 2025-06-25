@@ -37,7 +37,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
   int polylinesCounter = 0;
   FlutterMapMath mapCalculator = FlutterMapMath();
 
-  late Intersection   _intersection;
+  late Intersection _intersection;
   Timer? _dataFetchTimer;
 
   // State variables to hold the single latest data point for each chart
@@ -93,8 +93,6 @@ class _IntersectionPageState extends State<IntersectionPage> {
 
     _isSaving = false;
 
-
-
     _updatePolylines();
 
     polyEditor = List.generate(
@@ -124,8 +122,9 @@ class _IntersectionPageState extends State<IntersectionPage> {
             : ConnectionStatus.offline;
         // Update the single latest data point state variables.
         // This will trigger didUpdateWidget in the MyChart widgets.
-        if (newData.avgWaitingTimeData.value != -1 ||
-            newData.avgVehicleThroughputData.value != -1) {
+        if (_intersection.connectionStatus == ConnectionStatus.online &&
+            (newData.avgWaitingTimeData.value != -1 ||
+                newData.avgVehicleThroughputData.value != -1)) {
           _latestWaitingTimePoint = newData.avgWaitingTimeData;
           _latestThroughputPoint = newData.avgVehicleThroughputData;
         }
@@ -207,7 +206,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
           context: context,
           barrierDismissible: false,
           builder: (context) =>
-          const Center(child: CircularProgressIndicator()));
+              const Center(child: CircularProgressIndicator()));
 
       final response = await ApiService.getCurrentStatus(_intersection.id);
       if (!mounted) return;
@@ -230,7 +229,7 @@ class _IntersectionPageState extends State<IntersectionPage> {
             initialToggleAllRedValue = true;
             initialToggleHazardModeValue = false;
             break;
-          case "ALL_YELLOW":
+          case "HAZARD_MODE":
             initialTurnOnOffValue = true;
             initialToggleAllRedValue = false;
             initialToggleHazardModeValue = true;
@@ -242,7 +241,6 @@ class _IntersectionPageState extends State<IntersectionPage> {
         }
         _isSaving = false;
       });
-
     } catch (e) {
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -251,8 +249,6 @@ class _IntersectionPageState extends State<IntersectionPage> {
       );
     }
   }
-
-
 
   void _updatePolylines() {
     if (_intersection.entries == null || _intersection.entries!.isEmpty) {
@@ -403,36 +399,41 @@ class _IntersectionPageState extends State<IntersectionPage> {
                         width: MediaQuery.of(context).size.width,
                         child: MyChart(
                             title: "Average Waiting Time",
-                            initialChartData: _intersection.avgWaitingTimeDataPoints.isNotEmpty ?
-                                _intersection.avgWaitingTimeDataPoints : [],
+                            initialChartData: _intersection
+                                    .avgWaitingTimeDataPoints.isNotEmpty
+                                ? _intersection.avgWaitingTimeDataPoints
+                                : [],
                             currentChartDataPoint: _latestWaitingTimePoint)),
                     SizedBox(
                         height: 250,
                         width: MediaQuery.of(context).size.width,
                         child: MyChart(
                             title: "Average Vehicle Throughput",
-                            initialChartData: _intersection.avgVehicleThroughputDataPoints.isNotEmpty ?
-                                _intersection.avgVehicleThroughputDataPoints : [],
+                            initialChartData: _intersection
+                                    .avgVehicleThroughputDataPoints.isNotEmpty
+                                ? _intersection.avgVehicleThroughputDataPoints
+                                : [],
                             currentChartDataPoint: _latestThroughputPoint)),
-                        MyButton(
-                            buttonColor: utilityButtonColor,
-                            textColor: primaryTextColor,
-                            buttonText: "Reset Statistics Data",
-                            onPressed: _isSaving ? null : () async {
-                              await ApiService.onPressedApiCall(
-                                isSaving: _isSaving,
-                                context: context,
-                                apiCall: ApiService.resetStatistics(
-                                    _intersection.id),
-                                setState: setState,
-                                actionText: "Reset statistics data",
-                                errorText: 'resetting statistics data',
-                              );
-                              setState(() {
-                                _fetchFullIntersection();
-                              });
-                            }
-                        )
+                    MyButton(
+                        buttonColor: utilityButtonColor,
+                        textColor: primaryTextColor,
+                        buttonText: "Reset Statistics Data",
+                        onPressed: _isSaving
+                            ? null
+                            : () async {
+                                await ApiService.onPressedApiCall(
+                                  isSaving: _isSaving,
+                                  context: context,
+                                  apiCall: ApiService.resetStatistics(
+                                      _intersection.id),
+                                  setState: setState,
+                                  actionText: "Reset statistics data",
+                                  errorText: 'resetting statistics data',
+                                );
+                                setState(() {
+                                  _fetchFullIntersection();
+                                });
+                              })
                   ]),
                 ),
               ),
@@ -450,7 +451,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           value: initialTurnOnOffValue,
                           isSaving: _isSaving,
                           label: "Turn ON/OFF Traffic Lights: ",
-                          apiCallBuilder: () => ApiService.turnOffTrafficLights(widget.intersection.id),
+                          apiCallBuilder: () => ApiService.turnOffTrafficLights(
+                              widget.intersection.id),
                           actionText1: "Turned traffic lights off",
                           actionText2: "Turned traffic lights on",
                           errorText1: "turning traffic lights off",
@@ -487,7 +489,8 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           value: initialToggleAllRedValue,
                           isSaving: _isSaving,
                           label: "Toggle All Red: ",
-                          apiCallBuilder: () => ApiService.trafficLightsAllRed(widget.intersection.id),
+                          apiCallBuilder: () => ApiService.trafficLightsAllRed(
+                              widget.intersection.id),
                           actionText1: "Toggled all traffic lights red",
                           actionText2: "Resumed traffic lights cycle",
                           errorText1: "toggling all traffic lights red",
@@ -507,7 +510,9 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           value: initialToggleHazardModeValue,
                           isSaving: _isSaving,
                           label: "Toggle Hazard Mode: ",
-                          apiCallBuilder: () => ApiService.trafficLightsHazardMode(widget.intersection.id),
+                          apiCallBuilder: () =>
+                              ApiService.trafficLightsHazardMode(
+                                  widget.intersection.id),
                           actionText1: "Toggled hazard mode",
                           actionText2: "Resumed traffic lights cycle",
                           errorText1: "toggling hazard mode",
@@ -524,19 +529,20 @@ class _IntersectionPageState extends State<IntersectionPage> {
                           height: 30.0,
                         ),
                         MyToggleSwitch(
-                        value: initialToggleSmartAlgorithmValue,
-                        isSaving: _isSaving,
-                        label: "Toggle Smart Algorithm: ",
-                        apiCallBuilder: () => ApiService.toggleSmartAlgorithm(widget.intersection.id),
-                        actionText1: "Turned on smart algorithm",
-                        actionText2: "Turned off smart algorithm",
-                        errorText1: "toggling smart algorithm",
-                        errorText2: "toggling smart algorithm",
-                        onChanged: (newValue) {
-                          setState(() {
-                            initialToggleSmartAlgorithmValue = newValue;
-                          });
-                        },
+                          value: initialToggleSmartAlgorithmValue,
+                          isSaving: _isSaving,
+                          label: "Toggle Smart Algorithm: ",
+                          apiCallBuilder: () => ApiService.toggleSmartAlgorithm(
+                              widget.intersection.id),
+                          actionText1: "Turned on smart algorithm",
+                          actionText2: "Turned off smart algorithm",
+                          errorText1: "toggling smart algorithm",
+                          errorText2: "toggling smart algorithm",
+                          onChanged: (newValue) {
+                            setState(() {
+                              initialToggleSmartAlgorithmValue = newValue;
+                            });
+                          },
                         ),
                         const SizedBox(
                           height: 30.0,
