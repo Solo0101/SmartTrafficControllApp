@@ -74,7 +74,14 @@ This mobile application **will not function** without its backend. Please clone 
 
 The project is organized into the following main directories:
 
-lib/├── components/     # Reusable UI widgets (buttons, text fields, charts)├── constants/      # App-wide constants (styles, routes, text)├── helpers/        # Helper classes (connectivity, time)├── models/         # Data models for User and Intersection├── pages/          # Main screens of the application├── services/       # Business logic (API, Auth, Database)└── shared/         # Shared configurations like routing
+lib/
+├── components/     # Reusable UI widgets (buttons, text fields, charts)
+├── constants/      # App-wide constants (styles, routes, text)
+├── helpers/        # Helper classes (connectivity, time)
+├── models/         # Data models for User and Intersection
+├── pages/          # Main screens of the application
+├── services/       # Business logic (API, Auth, Database)
+└── shared/         # Shared configurations like routing
 ---
 
 ## 📄 License
