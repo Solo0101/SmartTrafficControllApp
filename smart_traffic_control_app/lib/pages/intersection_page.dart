@@ -447,6 +447,23 @@ class _IntersectionPageState extends State<IntersectionPage> {
                     padding: const EdgeInsets.only(top: 35.0),
                     child: Column(
                       children: <Widget>[
+                        MyButton(
+                            buttonColor: utilityButtonColor,
+                            textColor: primaryTextColor,
+                            buttonText: "Toggle Color Change",
+                            onPressed: _isSaving
+                                ? null
+                                : () async => await ApiService.onPressedApiCall(
+                                isSaving: _isSaving,
+                                context: context,
+                                apiCall: ApiService.toggleTrafficLights(
+                                    widget.intersection.id),
+                                setState: setState,
+                                actionText: "Toggled color change",
+                                errorText: "toggling color change")),
+                        const SizedBox(
+                          height: 30.0,
+                        ),
                         MyToggleSwitch(
                           value: initialTurnOnOffValue,
                           isSaving: _isSaving,
@@ -465,23 +482,6 @@ class _IntersectionPageState extends State<IntersectionPage> {
                             });
                           },
                         ),
-                        const SizedBox(
-                          height: 30.0,
-                        ),
-                        MyButton(
-                            buttonColor: utilityButtonColor,
-                            textColor: primaryTextColor,
-                            buttonText: "Toggle Color Change",
-                            onPressed: _isSaving
-                                ? null
-                                : () async => await ApiService.onPressedApiCall(
-                                    isSaving: _isSaving,
-                                    context: context,
-                                    apiCall: ApiService.toggleTrafficLights(
-                                        widget.intersection.id),
-                                    setState: setState,
-                                    actionText: "Toggled color change",
-                                    errorText: "toggling color change")),
                         const SizedBox(
                           height: 30.0,
                         ),

@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_traffic_control_app/constants/style_constants.dart';
 
 class MyTextField extends ConsumerStatefulWidget {
-  late TextEditingController controller;
+  final TextEditingController controller;
   final String hintText;
-  late bool obscureText;
+  final bool obscureText;
   final bool isPassword;
   final bool hasValidation;
 
-  MyTextField({
+  const MyTextField({
     super.key,
     required this.controller,
     required this.hintText,
@@ -24,9 +24,11 @@ class MyTextField extends ConsumerStatefulWidget {
 
 class _MyTextFieldState extends ConsumerState<MyTextField> {
   TextEditingController textController = TextEditingController();
+  late bool _obscureText;
   @override
   void initState() {
     textController = widget.controller;
+    _obscureText = widget.obscureText;
     super.initState();
   }
 
@@ -50,8 +52,7 @@ class _MyTextFieldState extends ConsumerState<MyTextField> {
         ),
         child: TextFormField(
           controller: widget.controller,
-          // controller: TextEditingController(text: widget.controllerText),
-          obscureText: widget.obscureText,
+          obscureText: _obscureText,
           textInputAction: TextInputAction.next,
           validator: (value) {
             if (widget.hasValidation) {
@@ -78,10 +79,10 @@ class _MyTextFieldState extends ConsumerState<MyTextField> {
               hintStyle: const TextStyle(color: placeholderTextColor, fontSize: 15.0),
               suffixIcon: widget.isPassword
                   ? IconButton(
-                      icon: Icon(widget.obscureText ? Icons.visibility : Icons.visibility_off, color: primaryTextColor),
+                      icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off, color: primaryTextColor),
                       onPressed: () {
                         setState(() {
-                          widget.obscureText = !widget.obscureText;
+                          _obscureText = !_obscureText;
                         });
                       },
                     )
